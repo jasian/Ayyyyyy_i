@@ -5,7 +5,7 @@ import Trail
 import Constraint
 import ConstraintNetwork
 import time
-#test
+
 from collections import defaultdict
 class BTSolver:
 
@@ -51,9 +51,6 @@ class BTSolver:
         print("ENTER: forwardChecking Function");
         print(self.gameboard);
         
-        #FCFlag should monitor the FC loop
-        #else, it is true
-        
         #if forwardChecking() hasn't been called yet then FCFlag = False
         if (self.FCFlag == False):
             print("flag is false");
@@ -68,10 +65,11 @@ class BTSolver:
                 #Collecting all the values that are preassigned
                 valuesToRemove = [];
                 for v in constraint.vars:
-                    print ("v.getValues() = ", v.getValues());
+#                     print ("v.getValues() = ", v.getValues());
                     if (len(v.getValues()) == 1):
                         valuesToRemove.append(v.getValues()[0]);
-                        
+                
+#                 print("valuesToRemove: ", valuesToRemove);            
                 #start deleting from neighbor's domains
                 for v in constraint.vars:
                     for toRemoveValue in valuesToRemove:
@@ -81,22 +79,51 @@ class BTSolver:
                         
                         #Return false if the value you want to remove is the only one left in domain
                         #Therefore, the domain would've been 0
-                        if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
-                            return False;
+#                         if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
+#                             return False;
                         
                         v.removeValueFromDomain(toRemoveValue);
-            print("")            
+            print("end of changing preassigned variables")            
             #First loop is officially done and all preassigned values are set
             self.FCFlag = True;
+        
+        #every other call 
         else:
             print("flag is True");
             constraints = self.network.getModifiedConstraints();
             for constraint in constraints:
+                print(str(constraint));
                 if not constraint.isConsistent():
                     return False;
-                
+                                #Collecting all the values that are preassigned
+                valuesToRemove = [];
                 for v in constraint.vars:
-                    print ("v.getValues() = ", v.getValues());
+#                     print ("v.getValues() = ", v.getValues());
+                    if (v.isModified()):
+                        print("this value is modified: ", str(v));
+                        valuesToRemove.append(v.getValues()[0]);
+                
+#                 print("valuesToRemove: ", valuesToRemove);            
+                #start deleting from neighbor's domains
+                for v in constraint.vars:
+                    for toRemoveValue in valuesToRemove:
+                        #before you remove you push into the trail
+                        self.trail.placeTrailMarker();
+                        self.trail.push( v );
+                        
+                        #Return false if the value you want to remove is the only one left in domain
+                        #Therefore, the domain would've been 0
+#                         if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
+#                             return False;
+                        v.removeValueFromDomain(toRemoveValue);
+                #delete first value that is modified
+#                 valueToRemove = constraint.vars[0];
+#                 self.trail.placeTrailMarker();
+#                 self.trail.push(valueToRemove );
+#                 v.removeValueFromDomain(toRemoveValue);
+                
+#                 for v in constraint.vars:
+#                     print ("v.getValues() = ", v.getValues());
                                 
         print("END OF: forwardChecking Function");
 
