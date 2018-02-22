@@ -5,7 +5,7 @@ import Trail
 import Constraint
 import ConstraintNetwork
 import time
-
+#test
 from collections import defaultdict
 class BTSolver:
 
