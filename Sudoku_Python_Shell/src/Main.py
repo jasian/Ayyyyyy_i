@@ -24,6 +24,9 @@ def main ( ):
     val_sh = "";
     cc     = "";
 
+    #DELETE THIS LATER
+    args.append("FC");
+
     for arg in [args[i] for i in range(1, len(args))]:
         if arg == "MRV":
             var_sh = "MinimumRemainingValue"

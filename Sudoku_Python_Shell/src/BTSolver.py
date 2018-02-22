@@ -6,6 +6,7 @@ import Constraint
 import ConstraintNetwork
 import time
 
+from collections import defaultdict
 class BTSolver:
 
     # ==================================================================
@@ -21,6 +22,7 @@ class BTSolver:
         self.varHeuristics = var_sh
         self.valHeuristics = val_sh
         self.cChecks = cc
+        self.FCFlag = False
 
     # ==================================================================
     # Consistency Checks
@@ -46,7 +48,59 @@ class BTSolver:
         Return: true is assignment is consistent, false otherwise
     """
     def forwardChecking ( self ):
-        return False
+        print("ENTER: forwardChecking Function");
+        print(self.gameboard);
+        
+        #FCFlag should monitor the FC loop
+        #else, it is true
+        
+        #if forwardChecking() hasn't been called yet then FCFlag = False
+        if (self.FCFlag == False):
+            print("flag is false");
+            constraints = self.network.getModifiedConstraints();
+            for constraint in constraints:
+                #return false if domain == 0 
+                if not constraint.isConsistent():
+                    return False;
+                
+                print(str(constraint));
+                
+                #Collecting all the values that are preassigned
+                valuesToRemove = [];
+                for v in constraint.vars:
+                    print ("v.getValues() = ", v.getValues());
+                    if (len(v.getValues()) == 1):
+                        valuesToRemove.append(v.getValues()[0]);
+                        
+                #start deleting from neighbor's domains
+                for v in constraint.vars:
+                    for toRemoveValue in valuesToRemove:
+                        #before you remove you push into the trail
+                        self.trail.placeTrailMarker();
+                        self.trail.push( v );
+                        
+                        #Return false if the value you want to remove is the only one left in domain
+                        #Therefore, the domain would've been 0
+                        if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
+                            return False;
+                        
+                        v.removeValueFromDomain(toRemoveValue);
+            print("")            
+            #First loop is officially done and all preassigned values are set
+            self.FCFlag = True;
+        else:
+            print("flag is True");
+            constraints = self.network.getModifiedConstraints();
+            for constraint in constraints:
+                if not constraint.isConsistent():
+                    return False;
+                
+                for v in constraint.vars:
+                    print ("v.getValues() = ", v.getValues());
+                                
+        print("END OF: forwardChecking Function");
+
+        return True
 
     """
         Part 2 TODO: Implement both of Norvig's Heuristics
@@ -94,7 +148,17 @@ class BTSolver:
         Return: The unassigned variable with the smallest domain
     """
     def getMRV ( self ):
-        return None
+        min_variable = self.getfirstUnassignedVariable();
+        for v in self.network.variables:
+            if not v.isAssigned():
+                if (v.size() < min_variable.size()):
+                    min_variable = v;
+        
+        return min_variable;
+                    
+
+#         # Everything is assigned
+#         return None
 
     """
         Part 2 TODO: Implement the Degree Heuristic
@@ -142,7 +206,21 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
-        return None
+        domain_freq = defaultdict(int);
+        neighbors = self.network.getNeighborsOfVariable(v); #neighbors that share a constraint
+        for neighbor in neighbors: 
+            for value in neighbor.getValues():
+                domain_freq[value] += 1;
+        
+#         print("before, ", lil_dict); 
+        sorted_dict = sorted(domain_freq.items(), key = lambda x:x[1]);
+        result = [value[0] for value in sorted_dict]; 
+        
+        print(self.gameboard);
+#         print("after, ", sorted_dict);
+#         print("result, ", result);
+        return result;
+        #return sorted_dict;
 
     """
          Optional TODO: Implement your own advanced Value Heuristic
