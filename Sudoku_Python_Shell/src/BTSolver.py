@@ -48,88 +48,41 @@ class BTSolver:
         Return: true is assignment is consistent, false otherwise
     """
     def forwardChecking ( self ):
-        print("ENTER: forwardChecking Function");
-        print(self.gameboard);
-        
-        #if forwardChecking() hasn't been called yet then FCFlag = False
-        if (self.FCFlag == False):
-            print("flag is false");
-            constraints = self.network.getModifiedConstraints();
-            for constraint in constraints:
-                #return false if domain == 0 
-                if not constraint.isConsistent():
-                    return False;
-                
-                print(str(constraint));
-                
-                #Collecting all the values that are preassigned
-                valuesToRemove = [];
-                for v in constraint.vars:
-#                     print ("v.getValues() = ", v.getValues());
-                    if (len(v.getValues()) == 1):
-                        valuesToRemove.append(v.getValues()[0]);
-                
-#                 print("valuesToRemove: ", valuesToRemove);            
-                #start deleting from neighbor's domains
-                for v in constraint.vars:
-                    for toRemoveValue in valuesToRemove:
-                        #before you remove you push into the trail
-                        self.trail.placeTrailMarker();
-                        self.trail.push( v );
-                        
-                        #Return false if the value you want to remove is the only one left in domain
-                        #Therefore, the domain would've been 0
-#                         if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
-#                             return False;
-                        
-                        v.removeValueFromDomain(toRemoveValue);
-            print("end of changing preassigned variables")            
-            #First loop is officially done and all preassigned values are set
-            self.FCFlag = True;
-        
-        #every other call 
-        else:
-            print("flag is True");
-            constraints = self.network.getModifiedConstraints();
-            for constraint in constraints:
-#                 print(str(constraint));
-                if not constraint.isConsistent():
-                    return False;
-                                #Collecting all the values that are preassigned
-                valuesToRemove = [];
-                for v in constraint.vars:
-                    print ("v.getValues() = ", v.getValues());
-                    if (v.isModified()):
-                        print("this value is modified: ", str(v));
-                        valuesToRemove.append(v.getValues()[0]);
-                
-#                 print("valuesToRemove: ", valuesToRemove);            
-                #start deleting from neighbor's domains
-                for v in constraint.vars:
-                    for toRemoveValue in valuesToRemove:
-                        #before you remove you push into the trail
-                        self.trail.placeTrailMarker();
-                        self.trail.push( v );
-                        
-                        #Return false if the value you want to remove is the only one left in domain
-                        #Therefore, the domain would've been 0
-#                         if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
-#                             return False;
-#                         print("v.getvalues():  ", v.getValues());
-                        v.removeValueFromDomain(toRemoveValue);
-                #delete first value that is modified
-#                 valueToRemove = constraint.vars[0];
-#                 self.trail.placeTrailMarker();
-#                 self.trail.push(valueToRemove );
-#                 v.removeValueFromDomain(toRemoveValue);
-                
-#                 for v in constraint.vars:
-#                     print ("v.getValues() = ", v.getValues());
-                                
-        print("END OF: forwardChecking Function");
+        #VERSION 1
+        """
+        for constraint in self.network.getModifiedConstraints():
+            if not constraint.isConsistent():
+                return False;
 
-        return True
+            valuesToRemove = [];
+            for var in constraint.vars:
+                if (var.getDomain().size() == 1):
+                    valuesToRemove.append(var.getValues()[0]);
+            for var in constraint.vars:
+                for toRemoveValue in valuesToRemove:
+                    if(var.getDomain().size() != 1 and var.getDomain().contains(toRemoveValue)):
+                        self.trail.push(var);
+                        var.removeValueFromDomain(toRemoveValue);
+        return True;
+        """
 
+        #VERSION 2
+        
+        for constraint in self.network.getModifiedConstraints():
+            if not constraint.isConsistent():
+                return False;
+
+            for var in constraint.vars:
+                if (var.getDomain().size() == 1):
+                    value = var.getValues()[0];
+                    for neighbor in self.network.getNeighborsOfVariable(var):
+                        if(neighbor.getDomain().size() != 1 and neighbor.getDomain().contains(value)):
+                            self.trail.push(neighbor);
+                            neighbor.removeValueFromDomain(value);
+
+        return True;
+        
+        
     """
         Part 2 TODO: Implement both of Norvig's Heuristics
 

@@ -28,7 +28,7 @@ def main ( ):
     #DELETE THIS LATER
 #     args.append("FC");
 #     args.append("MRV");
-    args.append("LCV");
+#     args.append("LCV");
 
     for arg in [args[i] for i in range(1, len(args))]:
         if arg == "MRV":
@@ -60,7 +60,7 @@ def main ( ):
     trail = Trail.Trail();
 
     if file == "":
-        sudokudata = SudokuBoard.SudokuBoard( 3, 3, 7 )
+        sudokudata = SudokuBoard.SudokuBoard( 4, 3, 30 )
         print(sudokudata)
 
         solver = BTSolver.BTSolver( sudokudata, trail, val_sh, var_sh, cc )
