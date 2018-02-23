@@ -10,6 +10,7 @@ import BTSolver
 import Trail
 import time
 
+
 """
     Main driver file, which is responsible for interfacing with the
     command line and properly starting the backtrack solver.
@@ -25,7 +26,9 @@ def main ( ):
     cc     = "";
 
     #DELETE THIS LATER
-    args.append("FC");
+#     args.append("FC");
+#     args.append("MRV");
+    args.append("LCV");
 
     for arg in [args[i] for i in range(1, len(args))]:
         if arg == "MRV":

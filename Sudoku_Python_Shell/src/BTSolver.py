@@ -5,7 +5,7 @@ import Trail
 import Constraint
 import ConstraintNetwork
 import time
-
+import functools
 from collections import defaultdict
 class BTSolver:
 
@@ -92,13 +92,13 @@ class BTSolver:
             print("flag is True");
             constraints = self.network.getModifiedConstraints();
             for constraint in constraints:
-                print(str(constraint));
+#                 print(str(constraint));
                 if not constraint.isConsistent():
                     return False;
                                 #Collecting all the values that are preassigned
                 valuesToRemove = [];
                 for v in constraint.vars:
-#                     print ("v.getValues() = ", v.getValues());
+                    print ("v.getValues() = ", v.getValues());
                     if (v.isModified()):
                         print("this value is modified: ", str(v));
                         valuesToRemove.append(v.getValues()[0]);
@@ -115,6 +115,7 @@ class BTSolver:
                         #Therefore, the domain would've been 0
 #                         if (len(v.getValues()) == 1 and v.getValues()[0] == toRemoveValue):
 #                             return False;
+#                         print("v.getvalues():  ", v.getValues());
                         v.removeValueFromDomain(toRemoveValue);
                 #delete first value that is modified
 #                 valueToRemove = constraint.vars[0];
@@ -233,21 +234,31 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
+        print("v.getVzlues(): ", v.getValues());
+        
         domain_freq = defaultdict(int);
-        neighbors = self.network.getNeighborsOfVariable(v); #neighbors that share a constraint
-        for neighbor in neighbors: 
-            for value in neighbor.getValues():
+        for neighbor in self.network.getNeighborsOfVariable(v): #neighbors that share a constraint 
+#             if neighbor.domain.contains(value):
+#                 domain_freq[]
+            for value in neighbor.domain.values:
+                print("value: ", value);
                 domain_freq[value] += 1;
-        
-#         print("before, ", lil_dict); 
-        sorted_dict = sorted(domain_freq.items(), key = lambda x:x[1]);
-        result = [value[0] for value in sorted_dict]; 
-        
-        print(self.gameboard);
+            print("stop");
+
+        first_dict = sorted(domain_freq.items(), key = lambda x:x[0]);
+        sorted_dict = sorted(first_dict, key = lambda x:x[1]);
+        result = [value[0] for value in sorted_dict];
+
+#        
+#         print(self.gameboard);
 #         print("after, ", sorted_dict);
-#         print("result, ", result);
-        return result;
+        print("   result, ", result);
+#         return result;
         #return sorted_dict;
+        values = v.domain.values;
+
+
+        return new_result;
 
     """
          Optional TODO: Implement your own advanced Value Heuristic
