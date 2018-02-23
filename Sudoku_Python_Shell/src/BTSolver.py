@@ -234,31 +234,17 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
-        print("v.getVzlues(): ", v.getValues());
-        
         domain_freq = defaultdict(int);
+        for value in v.getValues():
+            domain_freq[value] += 1;
         for neighbor in self.network.getNeighborsOfVariable(v): #neighbors that share a constraint 
-#             if neighbor.domain.contains(value):
-#                 domain_freq[]
             for value in neighbor.domain.values:
-                print("value: ", value);
                 domain_freq[value] += 1;
-            print("stop");
 
         first_dict = sorted(domain_freq.items(), key = lambda x:x[0]);
         sorted_dict = sorted(first_dict, key = lambda x:x[1]);
         result = [value[0] for value in sorted_dict];
-
-#        
-#         print(self.gameboard);
-#         print("after, ", sorted_dict);
-        print("   result, ", result);
-#         return result;
-        #return sorted_dict;
-        values = v.domain.values;
-
-
-        return new_result;
+        return result;
 
     """
          Optional TODO: Implement your own advanced Value Heuristic
